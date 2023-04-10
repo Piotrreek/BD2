@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Bazy danych 2 - Projekt</title>
+    <link href="/static/css/main.css" rel="stylesheet"/>
+</head>
+<body>
+<div class="container">
+    <ul>
+        <li>
+            <a class="link-href" asp-controller="Home" asp-action="Index">Go to main page</a>
+        </li>
+        <li>
+            <a class="link-href" asp-controller="Home" asp-action="GetDocuments">Show available documents</a>
+        </li>
+    </ul>
+    @RenderBody()
+</div>
+<script src="/static/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+@using Projekt.Models
+@model Projekt.Models.XmlEditDocumentModel
+
+@{
+    string RenderRecursively(XmlElementModel elementModel, int ind = 0)
+    {
+        var spaces = string.Join("&emsp;", Enumerable.Repeat("", ind + 1));
+        if (elementModel.Type == XmlElementTypeEnum.Text)
+        {
+            return $@"
+                    <div>
+                        {spaces} {elementModel.Value}
+                         <input type=""text"" id=""{elementModel.Id}""/>
+                         <button type=""button"" onClick=editElement({elementModel.Id})>Edit node value</button>
+                    </div>";
+        }
+        
+        
+        var childElements = elementModel.Children.Select(e => RenderRecursively(e, ind + 1));
+        var childElementsHtml = string.Join("", childElements);
+        var elementAttributesHtml = string.Join(" ", elementModel.Attributes.Select(attr => $@"
+                                         {attr.Name} = ""{attr.Value}"" 
+                                         <input type=""text"" id=""{attr.Id}""/>
+                                         <button type=""button"" onClick=editAttribute(""{attr.Id}"")>Edit attribute value</button>"));
+
+        return $@"
+                <div>
+                    {spaces}
+                    <span>
+                        &lt;{elementModel.Value}
+                        <input type=""text"" id=""{elementModel.Id}""/>
+                        <button type=""button"" onClick=editElement(""{elementModel.Id}"")>Edit node name</button>
+                    </span> 
+                    <span>{elementAttributesHtml}&gt;</span>
+                    {childElementsHtml}
+                    {spaces}
+                    <span>&lt;{elementModel.Value}/&gt;</span>
+                </div>";
+        
+    }
+}
+
+<h1>Edit your document here</h1>
+<h2>Remember to re-open page after editing to see changes</h2>
+
+<p class="edit-info"></p>
+
+@Html.Raw(RenderRecursively(Model.XmlModel))

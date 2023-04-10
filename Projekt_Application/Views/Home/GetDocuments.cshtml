@@ -1,0 +1,32 @@
+@model IEnumerable<Projekt.Models.XmlDocumentModel>
+
+<div class="documents"></div>
+<table class="document">
+    <thead>
+    <tr>
+        <td>Document Name</td>
+        <td></td>
+        <td></td>
+        <td></td>
+    </tr>
+    </thead>
+    <tbody>
+        @foreach (var document in @Model)
+        {
+            <tr>
+                <td>
+                    @document.Name
+                </td>
+                <td>
+                    <a target="_blank" asp-controller="Home" asp-action="ViewDocument" asp-route-documentName="@document.Name" asp-route-documentId="@document.Id">See document</a>
+                </td>
+                <td>
+                     <a target="_blank" asp-controller="Home" asp-action="DownloadDocument" asp-route-documentName="@document.Name" asp-route-documentId="@document.Id">Download document</a>
+                </td>
+                <td>
+                    <a asp-controller="Home" asp-action="GetDocumentForEditing" asp-route-documentId="@document.Id">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

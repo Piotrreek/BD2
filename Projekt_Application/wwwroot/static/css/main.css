@@ -1,0 +1,64 @@
+body {
+    margin-top: 30px;
+}
+
+ul {
+    list-style-type: none;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    justify-content: center;
+}
+
+a {
+    text-decoration: none;
+}
+
+.link-href {
+    color: black;
+    padding: 10px;
+    height: 100%;
+    background-color: beige;
+    border-radius: 10px;
+}
+
+.home-header, h1, h2 {
+    text-align: center;
+}
+
+.red {
+    color: coral;
+    font-size: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.document-info {
+    font-size: 26px;
+    color: white;
+}
+
+table {
+    border: 1px solid black;
+    border-collapse: collapse;
+    margin: 0 auto;
+    color: black;
+}
+
+td {
+    border: 1px solid black;
+    padding: 10px;
+    text-align: center;
+}
+
+div {
+    font-size: 20px;
+    margin: 10px 0;
+}
+
+input[type="text"] {
+    width: 80px;
+}
