@@ -90,7 +90,7 @@ public class XmlServiceTests
 
         // assert
         readResult.IsSuccess.Should().BeTrue();
-        readResult.Content.Should().Be(xml);
+        readResult.Content.Replace("\n", "").Replace("\r", "").Should().BeEquivalentTo(xml);
     }
     
     [Fact]

@@ -3,6 +3,7 @@ using System.Data.SqlClient;
 using System.Text;
 using System.Xml;
 using Dapper;
+using Projekt.Helpers;
 using Projekt.Models;
 using XmlAttribute = System.Xml.XmlAttribute;
 using XmlDocument = System.Xml.XmlDocument;
@@ -161,7 +162,7 @@ public class XmlService : IXmlService
                 Encoding = Encoding.GetEncoding(dbDocument.Encoding)
             };
 
-            using var stringWriter = new StringWriter();
+            using var stringWriter = new Utf8StringWriter();
             using var xmlWrite = XmlWriter.Create(stringWriter, writeSettings);
             document.Save(xmlWrite);
 
