@@ -12,4 +12,6 @@ public interface IXmlService
      Task<Result> UpdateXmlAttribute(Guid attributeId, string value);
      Task<Result<XmlEditDocumentModel>> GetXmlDocumentModelForEditing(Guid documentId);
      Task<Result<IEnumerable<XmlDocumentModel>>> GetDocuments();
+     Task<Result<IEnumerable<XmlElementModel>>> FindElementsByNodeName(Guid documentId, string nodeName);
+     Task<Result<IEnumerable<XmlElementModel>>> FindElementsByAttributeNameAndValue(Guid documentId, string attributeName, string attributeValue);
 }

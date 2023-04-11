@@ -1,0 +1,40 @@
+@using Projekt.Models
+@model IEnumerable<Projekt.Models.XmlElementModel>
+
+@{
+    string RenderRecursively(XmlElementModel elementModel, int ind = 0)
+    {
+        var spaces = string.Join("&emsp;", Enumerable.Repeat("", ind + 1));
+        if (elementModel.Type == XmlElementTypeEnum.Text)
+        {
+            return $@"
+                    <div>
+                        {spaces} {elementModel.Value}
+                    </div>";
+        }
+        
+        
+        var childElements = elementModel.Children.Select(e => RenderRecursively(e, ind + 1));
+        var childElementsHtml = string.Join("", childElements);
+        var elementAttributesHtml = string.Join(" ", elementModel.Attributes.Select(attr => $@"
+                                         {attr.Name} = ""{attr.Value}"" "));
+
+        return $@"
+                <div>
+                    {spaces}
+                    <span>
+                        &lt;{elementModel.Value}
+                    </span> 
+                    <span>{elementAttributesHtml}&gt;</span>
+                    {childElementsHtml}
+                    {spaces}
+                    <span>&lt;{elementModel.Value}/&gt;</span>
+                </div>";
+        
+    }
+}
+
+@foreach (var xmlElementModel in Model)
+{
+    @Html.Raw(RenderRecursively(xmlElementModel));
+}

@@ -2,6 +2,7 @@ using System.Net.Mime;
 using System.Text;
 using Microsoft.AspNetCore.Mvc;
 using Projekt;
+using Projekt_Application.Models;
 
 namespace Projekt_Application.Controllers;
 
@@ -82,7 +83,67 @@ public class HomeController : Controller
 
         return Ok("Updated successfully");
     }
+
+    public async Task<IActionResult> GetNodesByName([FromForm] Guid id, [FromForm]string nodeName)
+    {
+        var result = await _xmlService.FindElementsByNodeName(id, nodeName);
+        
+        if (!result.IsSuccess)
+        {
+            return View("GetErrorPage", result.Error);
+        }
+
+        return View("XmlNodes", result.Content);
+    }
     
+    public async Task<IActionResult> GetNodesByAttribute([FromForm] Guid id, [FromForm]string attributeName, [FromForm]string attributeValue)
+    {
+        var result = await _xmlService.FindElementsByAttributeNameAndValue(id, attributeName, attributeValue);
+        
+        if (!result.IsSuccess)
+        {
+            return View("GetErrorPage", result.Error);
+        }
+
+        return View("XmlNodes", result.Content);
+    }
+
+    public async Task<IActionResult> DeleteDocument(Guid id)
+    {
+        var result = await _xmlService.DeleteXmlDocument(id);
+        
+        if (!result.IsSuccess)
+        {
+            return View("GetErrorPage", result.Error);
+        }
+
+        return RedirectToAction("GetDocuments");
+    }
+
+    [HttpGet]
+    public IActionResult AddDocument()
+    {
+        return View();
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> AddDocument(AddDocumentModel model)
+    {
+        var file = model.Document;
+        if(file == null)
+            return View("GetErrorPage", "Choose file!");
+
+        var stream = file.OpenReadStream();
+        using var reader = new StreamReader(stream);
+        var fileText = new StringBuilder();
+        while (reader.Peek() >= 0)
+            fileText.AppendLine(await reader.ReadLineAsync());
+
+        var result = await _xmlService.SaveXmlDocument(fileText.ToString(), file.FileName);
+        
+        return RedirectToAction("GetDocuments");
+    }
+
     public IActionResult GetErrorPage([FromQuery]string error)
     {
         return View("GetErrorPage", error);

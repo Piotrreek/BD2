@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Data.Common;
 using System.Data.SqlClient;
 using System.Text;
@@ -207,7 +208,7 @@ public class XmlService : IXmlService
                     .Select(a =>
                         new XmlAttributeModel(a.Id, a.Name, a.Value, a.Order)));
             
-            ConstructDocumentModelRecursively(xmlElementModel, xmlElements);
+            ConstructXmlElementModelRecursively(xmlElementModel, xmlElements);
 
             return Result<XmlEditDocumentModel>.Success(new XmlEditDocumentModel(documentId, xmlElementModel, dbDocument.Name));
 
@@ -216,8 +217,99 @@ public class XmlService : IXmlService
         {
             return Result<XmlEditDocumentModel>.Failure(exception.Message);
         }
-    } 
+    }
     
+    public async Task<Result<IEnumerable<XmlElementModel>>> FindElementsByNodeName(Guid documentId, string nodeName)
+    {
+        try
+        {
+            await using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            var dbDocument = await GetDocumentById(connection, transaction, documentId);
+            if (dbDocument == null)
+                return Result<IEnumerable<XmlElementModel>>.Failure("Document with given Id does not exist!");
+
+            var xmlElements = (await GetElementsByDocumentId(connection, transaction, dbDocument.Id))
+                .ToList();
+            
+            foreach (var xmlElement in xmlElements)
+            {
+                xmlElement.Attributes.AddRange(await GetAttributesByElementId(connection, transaction, xmlElement.Id));
+            }
+
+            var xmlElementModelsWithWantedNodeName = xmlElements
+                .Where(e => e.Value == nodeName && e.Type == XmlElementTypeEnum.Node)
+                .Select(e => new XmlElementModel(e.Id, e.Order, e.Value, e.Type))
+                .ToList();
+
+            foreach (var xmlElementModel in xmlElementModelsWithWantedNodeName)
+            {
+                xmlElementModel.Attributes
+                    .AddRange(
+                        xmlElements.First(e => e.Id == xmlElementModel.Id)
+                            .Attributes
+                            .OrderBy(a => a.Order)
+                            .Select(a =>
+                                new XmlAttributeModel(a.Id, a.Name, a.Value, a.Order)));
+                
+                ConstructXmlElementModelRecursively(xmlElementModel, xmlElements);
+            }
+
+            return Result<IEnumerable<XmlElementModel>>.Success(xmlElementModelsWithWantedNodeName);
+        }
+        catch (Exception e)
+        {
+            return Result<IEnumerable<XmlElementModel>>.Failure(e);
+        }
+    }
+
+    public async Task<Result<IEnumerable<XmlElementModel>>> FindElementsByAttributeNameAndValue(Guid documentId, string attributeName, string attributeValue)
+    {
+        try
+        {
+            await using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            await using var transaction = await connection.BeginTransactionAsync();
+
+            var dbDocument = await GetDocumentById(connection, transaction, documentId);
+            if (dbDocument == null)
+                return Result<IEnumerable<XmlElementModel>>.Failure("Document with given Id does not exist!");
+
+            var xmlElements = (await GetElementsByDocumentId(connection, transaction, dbDocument.Id))
+                .ToList();
+            
+            foreach (var xmlElement in xmlElements)
+            {
+                xmlElement.Attributes.AddRange(await GetAttributesByElementId(connection, transaction, xmlElement.Id));
+            }
+
+            var xmlElementModelsWithWantedAttribute = xmlElements
+                .Where(e => e.Attributes.Any(a => a.Name == attributeName && a.Value == attributeValue))
+                .Select(e => new XmlElementModel(e.Id, e.Order, e.Value, e.Type))
+                .ToList();
+
+            foreach (var xmlElementModel in xmlElementModelsWithWantedAttribute)
+            {
+                xmlElementModel.Attributes
+                    .AddRange(
+                        xmlElements.First(e => e.Id == xmlElementModel.Id)
+                            .Attributes
+                            .OrderBy(a => a.Order)
+                            .Select(a =>
+                                new XmlAttributeModel(a.Id, a.Name, a.Value, a.Order)));
+                
+                ConstructXmlElementModelRecursively(xmlElementModel, xmlElements);
+            }
+
+            return Result<IEnumerable<XmlElementModel>>.Success(xmlElementModelsWithWantedAttribute);
+        }
+        catch (Exception e)
+        {
+            return Result<IEnumerable<XmlElementModel>>.Failure(e);
+        }
+    }
 
     /// <summary>
     /// Deletes XML document with specified Id
@@ -344,7 +436,7 @@ public class XmlService : IXmlService
             return Result<IEnumerable<XmlDocumentModel>>.Failure(e);
         }
     }
-
+    
     private static void ConstructDocumentRecursively(Projekt.Models.XmlElement xmlElement, List<Projekt.Models.XmlElement> xmlElements, XmlDocument document, XmlElement element)
     {
         var children = xmlElements
@@ -378,7 +470,7 @@ public class XmlService : IXmlService
         }
     }
 
-    private static void ConstructDocumentModelRecursively(XmlElementModel xmlElement,
+    private static void ConstructXmlElementModelRecursively(XmlElementModel xmlElement,
         List<Projekt.Models.XmlElement> xmlElements)
     {
         var children = xmlElements
@@ -405,7 +497,7 @@ public class XmlService : IXmlService
                     .AddRange(child.Attributes.OrderBy(a => a.Order)
                         .Select(a => new XmlAttributeModel(a.Id, a.Name, a.Value, a.Order)));
 
-                ConstructDocumentModelRecursively(newXmlElementModel, xmlElements);
+                ConstructXmlElementModelRecursively(newXmlElementModel, xmlElements);
             }
         }
     }

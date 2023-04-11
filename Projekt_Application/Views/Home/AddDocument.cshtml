@@ -1,0 +1,6 @@
+@model Projekt_Application.Models.AddDocumentModel
+
+<form method="POST" asp-controller="Home" asp-action="AddDocument" enctype="multipart/form-data">
+    <input type="file" asp-for="Document"/>
+    <button type="submit">Add</button>
+</form>

@@ -8,25 +8,52 @@
         <td></td>
         <td></td>
         <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
     </tr>
     </thead>
     <tbody>
-        @foreach (var document in @Model)
-        {
-            <tr>
-                <td>
-                    @document.Name
-                </td>
-                <td>
-                    <a target="_blank" asp-controller="Home" asp-action="ViewDocument" asp-route-documentName="@document.Name" asp-route-documentId="@document.Id">See document</a>
-                </td>
-                <td>
-                     <a target="_blank" asp-controller="Home" asp-action="DownloadDocument" asp-route-documentName="@document.Name" asp-route-documentId="@document.Id">Download document</a>
-                </td>
-                <td>
-                    <a asp-controller="Home" asp-action="GetDocumentForEditing" asp-route-documentId="@document.Id">Edit</a>
-                </td>
-            </tr>
-        }
+    @foreach (var document in @Model)
+    {
+        <tr>
+            <td>
+                @document.Name
+            </td>
+            <td>
+                <a target="_blank" asp-controller="Home" asp-action="ViewDocument" asp-route-documentName="@document.Name" asp-route-documentId="@document.Id">See document</a>
+            </td>
+            <td>
+                <a target="_blank" asp-controller="Home" asp-action="DownloadDocument" asp-route-documentName="@document.Name" asp-route-documentId="@document.Id">Download document</a>
+            </td>
+            <td>
+                <a asp-controller="Home" asp-action="GetDocumentForEditing" asp-route-documentId="@document.Id">Edit</a>
+            </td>
+            <td>
+                <form asp-controller="Home" asp-action="GetNodesByName">
+                    <label for="nodeName">Node name</label>
+                    <input type="text" name="nodeName" id="nodeName"/>
+                    <input type="hidden" value="@document.Id" name="id" id="id"/>
+                    <br/>
+                    <button type="submit">Search</button>
+                </form>
+            </td>
+            <td>
+                <form asp-controller="Home" asp-action="GetNodesByAttribute">
+                    <label for="attributeName">Attribute name</label>
+                    <input type="text" name="attributeName" id="attributeName"/>
+                    <br/>
+                    <label for="attributeValue">Attribute value</label>
+                    <input type="text" name="attributeValue" id="attributeValue"/>
+                    <input type="hidden" value="@document.Id" name="id" id="id"/>
+                    <br/>
+                    <button type="submit">Search</button>
+                </form>
+            </td>
+            <td>
+                <a asp-controller="Home" asp-action="DeleteDocument" asp-route-id="@document.Id">Delete</a>
+            </td>
+        </tr>
+    }
     </tbody>
 </table>
