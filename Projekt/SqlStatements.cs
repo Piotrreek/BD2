@@ -73,12 +73,6 @@ internal static class SqlStatements
 		USE BD2_XML;
 		SELECT Id, [Order], XmlDocumentId, ParentId, [Type], [Value] FROM XmlElement WHERE XmlDocumentId = @XmlDocumentId;
 		";
-	
-	public const string GetXmlElementsByNodeNameQuery =
-		@"
-		USE BD2_XML;
-		SELECT Id, [Order], XmlDocumentId, ParentId, [Type], [Value] FROM XmlElement WHERE XmlDocumentId = @XmlDocumentId AND [Value] = @Value AND [Type] = @Type;
-		";
 
 	public const string GetXmlAttributesQuery =
 		@"
