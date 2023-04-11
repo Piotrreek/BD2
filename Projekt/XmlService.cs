@@ -176,6 +176,11 @@ public class XmlService : IXmlService
         }
     }
 
+    /// <summary>
+    /// Get XML document model, which can be used for using editing functions, because this model holds id's of nodes/attributes/text
+    /// </summary>
+    /// <param name="documentId">Id of XML document</param>
+    /// <returns>Result object with error if failed or XmlEditDocumentModel object, which contains whole XML document stored recursively</returns>
     public async Task<Result<XmlEditDocumentModel>> GetXmlDocumentModelForEditing(Guid documentId)
     {
         try
@@ -209,7 +214,7 @@ public class XmlService : IXmlService
                         new XmlAttributeModel(a.Id, a.Name, a.Value, a.Order)));
             
             ConstructXmlElementModelRecursively(xmlElementModel, xmlElements);
-
+            
             return Result<XmlEditDocumentModel>.Success(new XmlEditDocumentModel(documentId, xmlElementModel, dbDocument.Name));
 
         }
@@ -219,6 +224,12 @@ public class XmlService : IXmlService
         }
     }
     
+    /// <summary>
+    /// Find all nodes with given name in XML document
+    /// </summary>
+    /// <param name="documentId">Id of XML document</param>
+    /// <param name="nodeName">Name of XML node</param>
+    /// <returns>IEnumerable of XmlElementModel. Each holds node with given name and its children</returns>
     public async Task<Result<IEnumerable<XmlElementModel>>> FindElementsByNodeName(Guid documentId, string nodeName)
     {
         try
@@ -257,6 +268,9 @@ public class XmlService : IXmlService
                 ConstructXmlElementModelRecursively(xmlElementModel, xmlElements);
             }
 
+            await transaction.CommitAsync();
+            await connection.CloseAsync();
+            
             return Result<IEnumerable<XmlElementModel>>.Success(xmlElementModelsWithWantedNodeName);
         }
         catch (Exception e)
@@ -265,6 +279,13 @@ public class XmlService : IXmlService
         }
     }
 
+    /// <summary>
+    /// Find all nodes with given attribute (both attributeName and attributeValue create one attribute in XML node)
+    /// </summary>
+    /// <param name="documentId">Id of XML document</param>
+    /// <param name="attributeName">Name of XML attribute</param>
+    /// <param name="attributeValue">Value of XML attribute</param>
+    /// <returns>IEnumerable of XmlElementModel. Each holds node with given attribute name, value and its children</returns>
     public async Task<Result<IEnumerable<XmlElementModel>>> FindElementsByAttributeNameAndValue(Guid documentId, string attributeName, string attributeValue)
     {
         try
@@ -303,6 +324,9 @@ public class XmlService : IXmlService
                 ConstructXmlElementModelRecursively(xmlElementModel, xmlElements);
             }
 
+            await transaction.CommitAsync();
+            await connection.CloseAsync();
+
             return Result<IEnumerable<XmlElementModel>>.Success(xmlElementModelsWithWantedAttribute);
         }
         catch (Exception e)
@@ -335,6 +359,7 @@ public class XmlService : IXmlService
                 );
             
             await transaction.CommitAsync();
+            await connection.CloseAsync();
         }
         catch (Exception e)
         {
@@ -368,6 +393,7 @@ public class XmlService : IXmlService
                 return Result.Failure("Element with this Id does not exist!");
 
             await transaction.CommitAsync();
+            await connection.CloseAsync();
         }
         catch (Exception e)
         {
@@ -399,8 +425,9 @@ public class XmlService : IXmlService
 
             if (numberOfModifiedRows == 0)
                 return Result.Failure("Attribute with this Id does not exist!");
-
+            
             await transaction.CommitAsync();
+            await connection.CloseAsync();
         }
         catch (Exception e)
         {
@@ -428,6 +455,7 @@ public class XmlService : IXmlService
             );
 
             await transaction.CommitAsync();
+            await connection.CloseAsync();
 
             return Result<IEnumerable<XmlDocumentModel>>.Success(documents);
         }
