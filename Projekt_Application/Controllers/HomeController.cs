@@ -13,6 +13,7 @@ public class HomeController : Controller
     public HomeController(IXmlService xmlService)
     {
         _xmlService = xmlService;
+        _xmlService.CreateDatabase();
     }
     
     public IActionResult Index()
